@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Punch Cards ✦</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  @font-face {
+    font-family: 'Baron Neue';
+    src: url('Baron Neue.otf') format('opentype');
+    font-weight: normal;
+  }
+  @font-face {
+    font-family: 'Gecko Lunch';
+    src: url('Gecko Lunch.ttf') format('truetype');
+    font-weight: normal;
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #E9E7DA;
+  --text: #2d2d2d;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Caveat', cursive;
+  min-height: 100vh;
+  color: var(--text);
+}
+
+/* ── Onboarding ── */
+#onboarding {
+  position: fixed;
+  inset: 0;
+  background: #E9E7DA;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 2rem;
+}
+#onboarding.hidden { display: none; }
+#onboarding .ob-icon { font-size: 4rem; margin-bottom: 0.8rem; }
+#onboarding h1 { font-size: 3.5rem; font-weight: 700; margin-bottom: 0.4rem; }
+#onboarding p { font-size: 1.4rem; opacity: 0.65; max-width: 380px; margin-bottom: 2rem; line-height: 1.4; }
+#onboarding .start-btn {
+  padding: 1rem 2.5rem;
+  font-size: 1.6rem;
+  background: #2d2d2d;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-family: 'Caveat', cursive;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+#onboarding .start-btn:hover { transform: scale(1.05); }
+
+/* ── Header ── */
+header {
+  text-align: center;
+  padding: 2rem 1rem 0.5rem;
+}
+header h1 { font-size: 2.8rem; font-weight: 700; letter-spacing: -0.5px; }
+header p { font-size: 1.2rem; opacity: 0.55; margin-top: 0.2rem; }
+
+/* ── Nav ── */
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+nav button {
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  padding: 0.35rem 1.2rem;
+  border-radius: 20px;
+  border: 2px solid var(--text);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+nav button.active, nav button:hover {
+  background: var(--text);
+  color: white;
+}
+
+/* ── Views ── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── Grid ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem 4rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── Add button ── */
+.add-card-btn {
+  min-height: 320px;
+  border: 3px dashed #c8c2b8;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: 'Caveat', cursive;
+  font-size: 1.3rem;
+  color: #b0a898;
+  transition: all 0.2s;
+  background: none;
+  gap: 0.4rem;
+}
+.add-card-btn:hover {
+  border-color: #888;
+  color: #666;
+  transform: scale(1.02);
+}
+.add-card-btn .plus { font-size: 3rem; line-height: 1; }
+
+/* ── Punch Card ── */
+.punch-card {
+  border-radius: 18px;
+  padding: 1.1rem;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+.punch-card:hover { transform: translateY(-4px); box-shadow: 0 6px 24px rgba(0,0,0,0.14); }
+
+.card-inner {
+  border: 2.5px solid rgba(255,255,255,0.4);
+  border-radius: 12px;
+  padding: 0.9rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: 1.55rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0.8rem;
+}
+
+.schedule-badge {
+  font-size: 0.82rem;
+  padding: 2px 10px;
+  border-radius: 20px;
+  text-align: center;
+  margin-bottom: 0.6rem;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Punch Grid ── */
+.punch-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: center;
+  flex: 1;
+  align-content: center;
+  margin: 0.4rem 0;
+}
+
+.punch-spot {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 26px;
+  border-radius: 50%;
+  user-select: none;
+  transition: transform 0.15s, opacity 0.15s;
+  opacity: 0.22;
+}
+.punch-spot.punched { opacity: 1; cursor: default; }
+.punch-spot.punchable:hover { opacity: 0.55; transform: scale(1.2); }
+.punch-spot.just-punched { animation: doPunch 0.4s ease forwards; }
+
+@keyframes doPunch {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.6) rotate(20deg); }
+  65%  { transform: scale(0.88) rotate(-8deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* ── Progress bar ── */
+.progress-wrap {
+  height: 5px;
+  background: rgba(0,0,0,0.10);
+  border-radius: 3px;
+  margin: 0.5rem 0 0.3rem;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.35s ease;
+}
+
+/* ── Card footer ── */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1.5px solid rgba(0,0,0,0.10);
+  font-size: 0.9rem;
+}
+.reward-text { opacity: 0.72; font-size: 0.88rem; }
+.completions-ct { font-size: 0.82rem; opacity: 0.55; margin-top: 2px; }
+
+.card-actions { display: flex; gap: 4px; }
+.card-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.05rem;
+  padding: 3px 5px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  line-height: 1;
+}
+.card-btn:hover { background: rgba(0,0,0,0.10); }
+
+/* ── Archive card ── */
+.archive-card .punch-card { opacity: 0.85; }
+.completed-stamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-14deg);
+  font-size: 1.3rem;
+  font-weight: 700;
+  border: 3px solid currentColor;
+  padding: 0.25rem 0.8rem;
+  border-radius: 6px;
+  opacity: 0.55;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: 'Caveat', cursive;
+}
+.archive-date {
+  text-align: center;
+  font-size: 0.88rem;
+  opacity: 0.5;
+  margin-top: 0.3rem;
+  font-family: 'Caveat', cursive;
+}
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #b0a898;
+  font-size: 1.35rem;
+  grid-column: 1 / -1;
+}
+.empty-state .big { font-size: 3.5rem; margin-bottom: 0.8rem; }
+
+/* ── Modal overlay ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
+}
+.modal-overlay.hidden { display: none; }
+
+.modal {
+  background: #E9E7DA;
+  border-radius: 22px;
+  padding: 2rem;
+  max-width: 480px;
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  font-family: 'Caveat', cursive;
+}
+.modal h2 { font-size: 2rem; margin-bottom: 1.4rem; text-align: center; }
+
+/* ── Form ── */
+.form-group { margin-bottom: 1.15rem; }
+.form-group label { display: block; font-size: 1.12rem; font-weight: 600; margin-bottom: 0.35rem; }
+
+.form-group input[type="text"],
+.form-group input[type="number"] {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-family: 'Caveat', cursive;
+  font-size: 1.1rem;
+  background: white;
+  transition: border-color 0.15s;
+}
+.form-group input:focus { outline: none; border-color: #999; }
+
+/* ── Color swatches ── */
+.swatch-row { display: flex; gap: 7px; flex-wrap: wrap; }
+.swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.swatch.selected { border-color: #333; transform: scale(1.15); }
+.swatch.light-bg { border-color: #ddd; }
+.swatch.light-bg.selected { border-color: #555; }
+
+/* ── Shape picker ── */
+.shape-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.shape-opt {
+  width: 46px;
+  height: 46px;
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2.5px solid #ddd;
+  transition: all 0.15s;
+  background: white;
+}
+.shape-opt.selected, .shape-opt:hover { border-color: #333; background: #f0ece6; }
+
+/* ── Font picker ── */
+.font-row { display: flex; flex-direction: column; gap: 7px; }
+.font-opt {
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 2.5px solid #ddd;
+  font-size: 1.3rem;
+  transition: all 0.15s;
+  background: white;
+}
+.font-opt.selected, .font-opt:hover { border-color: #333; background: #f0ece6; }
+
+/* ── Toggle group ── */
+.toggle-row { display: flex; gap: 7px; }
+.toggle-opt {
+  flex: 1;
+  padding: 0.45rem;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+  cursor: pointer;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  font-size: 1.05rem;
+  background: white;
+  transition: all 0.15s;
+}
+.toggle-opt.selected { border-color: #2d2d2d; background: #2d2d2d; color: white; }
+
+/* ── Modal buttons ── */
+.modal-btns { display: flex; gap: 1rem; margin-top: 1.5rem; }
+.btn-primary {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: none;
+  background: #2d2d2d;
+  color: white;
+  font-family: 'Caveat', cursive;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-primary:hover { opacity: 0.82; }
+.btn-secondary {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 2px solid #ccc;
+  background: transparent;
+  font-family: 'Caveat', cursive;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.btn-secondary:hover { border-color: #888; }
+
+/* ── Celebrate modal ── */
+.celebrate-modal { text-align: center; }
+.celebrate-modal .cel-icon { font-size: 4.5rem; margin-bottom: 0.8rem; }
+.celebrate-modal h2 { font-size: 2.6rem; }
+.celebrate-modal .cel-habit { font-size: 1.4rem; margin: 0.4rem 0; opacity: 0.8; }
+.celebrate-modal .cel-reward { font-size: 1.3rem; margin: 0.2rem 0; }
+.celebrate-modal .cel-sub { font-size: 1rem; opacity: 0.55; margin-top: 1rem; line-height: 1.5; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  header h1 { font-size: 2rem; }
+  .card-grid { padding: 1rem; gap: 1rem; }
+  .modal { padding: 1.4rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Onboarding screen -->
+<div id="onboarding">
+  <div class="ob-icon">✦</div>
+  <h1>Habit Punch Cards</h1>
+  <p>Build your habits one punch at a time. Complete a habit, punch your card, earn your reward.</p>
+  <button class="start-btn" onclick="dismissOnboarding()">Let's build my habits ✦</button>
+</div>
+
+<!-- App header -->
+<header>
+  <h1>✦ Habit Punch Cards ✦</h1>
+  <p>punch it when you do it</p>
+</header>
+
+<!-- Nav -->
+<nav>
+  <button class="active" onclick="showView('dashboard', this)">My Cards</button>
+  <button onclick="showView('archive', this)">Completed ✦</button>
+</nav>
+
+<!-- Dashboard view -->
+<div id="view-dashboard" class="view active">
+  <div class="card-grid" id="dashboard-grid"></div>
+</div>
+
+<!-- Archive view -->
+<div id="view-archive" class="view">
+  <div class="card-grid" id="archive-grid"></div>
+</div>
+
+<!-- ── Create / Edit Modal ── -->
+<div class="modal-overlay hidden" id="create-modal">
+  <div class="modal">
+    <h2 id="modal-title">new habit card ✦</h2>
+
+    <div class="form-group">
+      <label>What habit do you want to track?</label>
+      <input type="text" id="input-name" placeholder="e.g. meditate for 5 minutes" maxlength="45">
+    </div>
+
+    <div class="form-group">
+      <label>How many punches to complete a card?</label>
+      <input type="number" id="input-punches" value="10" min="4" max="30">
+    </div>
+
+    <div class="form-group">
+      <label>Schedule type</label>
+      <div class="toggle-row">
+        <button class="toggle-opt selected" data-sched="total" onclick="pickSchedule(this)">total goal</button>
+        <button class="toggle-opt" data-sched="daily" onclick="pickSchedule(this)">daily</button>
+        <button class="toggle-opt" data-sched="weekly" onclick="pickSchedule(this)">weekly</button>
+      </div>
+    </div>
+
+    <div class="form-group" id="sched-target-group" style="display:none">
+      <label id="sched-target-label">times per week</label>
+      <input type="number" id="input-sched-target" value="3" min="1" max="14">
+    </div>
+
+    <div class="form-group">
+      <label>Card background color</label>
+      <div class="swatch-row" id="bg-swatches"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Punch shape</label>
+      <div class="shape-row" id="shape-picker"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Punch color</label>
+      <div class="swatch-row" id="punch-swatches"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Font style</label>
+      <div class="font-row" id="font-picker"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Your reward when the card is complete (optional)</label>
+      <input type="text" id="input-reward" placeholder="e.g. a nice bath ✦">
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('create-modal')">cancel</button>
+      <button class="btn-primary" onclick="saveCard()">save card ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Celebration Modal ── -->
+<div class="modal-overlay hidden" id="celebrate-modal">
+  <div class="modal celebrate-modal">
+    <div class="cel-icon">🎉</div>
+    <h2>card complete!</h2>
+    <p class="cel-habit" id="cel-name"></p>
+    <p class="cel-reward" id="cel-reward"></p>
+    <p class="cel-sub">This card has been saved to your completed collection<br>and a fresh card has started!</p>
+    <div class="modal-btns" style="margin-top:1.5rem">
+      <button class="btn-secondary" onclick="closeModal('celebrate-modal')">keep going ✦</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Delete Confirm Modal ── -->
+<div class="modal-overlay hidden" id="delete-modal">
+  <div class="modal" style="text-align:center">
+    <h2>delete card?</h2>
+    <p style="font-size:1.2rem; opacity:0.65; margin-bottom:1.5rem">All progress for this habit will be lost.</p>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('delete-modal')">cancel</button>
+      <button class="btn-primary" style="background:#b03030" onclick="confirmDelete()">delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONSTANTS
+// ─────────────────────────────────────────────
+const BG_COLORS = [
+  '#e8d5f5','#d5e8f5','#d5f5e3','#f5e3d5','#f5d5d5',
+  '#f5f5d5','#d5d5f5','#f0ebe0','#ffd6e0','#d6f0e8',
+  '#2c4a6b','#1a5c3a','#6b2c2c','#3a3a6b','#2d2d2d',
+];
+
+const PUNCH_COLORS = [
+  '#ffffff','#2d2d2d','#c4706a','#6a9cc4','#6ac485',
+  '#c49a6a','#a46ac4','#c46aaa','#e07840','#4ecdc4',
+];
+
+const SHAPES = [
+  { id:'star4', em:'✦' },
+  { id:'heart',  em:'♥' },
+  { id:'flower', em:'✿' },
+  { id:'circle', em:'●' },
+  { id:'spark',  em:'✸' },
+  { id:'star5',  em:'★' },
+];
+
+const FONTS = [
+  { id:'Baron Neue',  sample:'Baron Neue — clean & bold' },
+  { id:'DM Mono',     sample:'DM Mono — monospaced' },
+  { id:'Caveat',      sample:'Caveat — handwritten' },
+  { id:'Gecko Lunch', sample:'Gecko Lunch — playful' },
+  { id:'Kalam',       sample:'Kalam — sketchy & warm' },
+];
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let state = { cards: [], archive: [], onboarded: false };
+let editingId   = null;
+let deletingId  = null;
+
+// picker selections
+let selBg    = BG_COLORS[4];
+let selPunch = PUNCH_COLORS[0];
+let selShape = 'star4';
+let selFont  = 'Caveat';
+let selSched = 'total';
+
+// ─────────────────────────────────────────────
+// PERSISTENCE
+// ─────────────────────────────────────────────
+function load() {
+  try { const s = localStorage.getItem('hpc'); if (s) state = JSON.parse(s); } catch(e) {}
+}
+function save() { localStorage.setItem('hpc', JSON.stringify(state)); }
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function isDark(hex) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return (r*299+g*587+b*114)/1000 < 145;
+}
+function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function getShape(id) { return SHAPES.find(s=>s.id===id)||SHAPES[0]; }
+
+// ─────────────────────────────────────────────
+// ONBOARDING
+// ─────────────────────────────────────────────
+function dismissOnboarding() {
+  state.onboarded = true;
+  save();
+  document.getElementById('onboarding').classList.add('hidden');
+  openCreateModal(null);
+}
+
+// ─────────────────────────────────────────────
+// VIEWS
+// ─────────────────────────────────────────────
+function showView(name, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (name === 'archive') renderArchive();
+}
+
+// ─────────────────────────────────────────────
+// MODAL OPEN / CLOSE
+// ─────────────────────────────────────────────
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function openCreateModal(cardId) {
+  editingId = cardId;
+
+  if (cardId) {
+    const c = state.cards.find(x=>x.id===cardId);
+    document.getElementById('modal-title').textContent = 'edit card ✦';
+    document.getElementById('input-name').value        = c.name;
+    document.getElementById('input-punches').value     = c.totalPunches;
+    document.getElementById('input-reward').value      = c.reward||'';
+    document.getElementById('input-sched-target').value= c.schedTarget||3;
+    selBg    = c.bgColor;
+    selPunch = c.punchColor;
+    selShape = c.shape;
+    selFont  = c.font;
+    selSched = c.schedType;
+  } else {
+    document.getElementById('modal-title').textContent = 'new habit card ✦';
+    document.getElementById('input-name').value        = '';
+    document.getElementById('input-punches').value     = 10;
+    document.getElementById('input-reward').value      = '';
+    document.getElementById('input-sched-target').value= 3;
+    selBg    = BG_COLORS[Math.floor(Math.random()*BG_COLORS.length)];
+    selPunch = PUNCH_COLORS[2+Math.floor(Math.random()*6)];
+    selShape = SHAPES[Math.floor(Math.random()*SHAPES.length)].id;
+    selFont  = 'Caveat';
+    selSched = 'total';
+  }
+
+  buildPickers();
+  updateSchedUI();
+  document.getElementById('create-modal').classList.remove('hidden');
+  document.getElementById('input-name').focus();
+}
+
+// ─────────────────────────────────────────────
+// PICKERS
+// ─────────────────────────────────────────────
+function buildPickers() {
+  // BG colors
+  document.getElementById('bg-swatches').innerHTML = BG_COLORS.map(c =>
+    `<div class="swatch${c===selBg?' selected':''}${!isDark(c)?' light-bg':''}"
+      style="background:${c}" onclick="pickBg('${c}',this)" title="${c}"></div>`
+  ).join('');
+
+  // Punch colors
+  document.getElementById('punch-swatches').innerHTML = PUNCH_COLORS.map(c =>
+    `<div class="swatch${c===selPunch?' selected':''}${c==='#ffffff'?' light-bg':''}"
+      style="background:${c}" onclick="pickPunch('${c}',this)" title="${c}"></div>`
+  ).join('');
+
+  // Shapes
+  document.getElementById('shape-picker').innerHTML = SHAPES.map(s =>
+    `<div class="shape-opt${s.id===selShape?' selected':''}" onclick="pickShape('${s.id}',this)">${s.em}</div>`
+  ).join('');
+
+  // Fonts
+  document.getElementById('font-picker').innerHTML = FONTS.map(f =>
+    `<div class="font-opt${f.id===selFont?' selected':''}"
+      style="font-family:'${f.id}',cursive" onclick="pickFont('${f.id}',this)">${f.sample}</div>`
+  ).join('');
+
+  // Schedule buttons
+  document.querySelectorAll('.toggle-opt').forEach(b =>
+    b.classList.toggle('selected', b.dataset.sched === selSched)
+  );
+}
+
+function pickBg(c, el)    { selBg=c;    hiliteSwatch('#bg-swatches', el); }
+function pickPunch(c, el) { selPunch=c; hiliteSwatch('#punch-swatches', el); }
+function pickShape(id, el){ selShape=id; hilite('.shape-opt', el); }
+function pickFont(id, el) { selFont=id;  hilite('.font-opt', el); }
+
+function hiliteSwatch(sel, el) {
+  document.querySelectorAll(sel+' .swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function hilite(sel, el) {
+  document.querySelectorAll(sel).forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function pickSchedule(el) {
+  selSched = el.dataset.sched;
+  document.querySelectorAll('.toggle-opt').forEach(b=>b.classList.toggle('selected',b===el));
+  updateSchedUI();
+}
+
+function updateSchedUI() {
+  const show = selSched !== 'total';
+  document.getElementById('sched-target-group').style.display = show ? 'block' : 'none';
+  document.getElementById('sched-target-label').textContent =
+    selSched === 'daily' ? 'times per day' : 'times per week';
+}
+
+// ─────────────────────────────────────────────
+// SAVE CARD
+// ─────────────────────────────────────────────
+function saveCard() {
+  const name = document.getElementById('input-name').value.trim();
+  if (!name) { document.getElementById('input-name').focus(); return; }
+
+  const totalPunches = Math.max(4, Math.min(30, parseInt(document.getElementById('input-punches').value)||10));
+  const reward       = document.getElementById('input-reward').value.trim();
+  const schedTarget  = parseInt(document.getElementById('input-sched-target').value)||3;
+
+  if (editingId) {
+    const c = state.cards.find(x=>x.id===editingId);
+    Object.assign(c, { name, totalPunches, reward, bgColor:selBg, punchColor:selPunch, shape:selShape, font:selFont, schedType:selSched, schedTarget });
+  } else {
+    state.cards.push({
+      id: uid(), name, totalPunches, reward,
+      bgColor: selBg, punchColor: selPunch, shape: selShape, font: selFont,
+      schedType: selSched, schedTarget,
+      punches: [], completions: 0,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  save();
+  closeModal('create-modal');
+  renderDashboard();
+}
+
+// ─────────────────────────────────────────────
+// RENDER DASHBOARD
+// ─────────────────────────────────────────────
+function renderDashboard() {
+  const grid = document.getElementById('dashboard-grid');
+  grid.innerHTML = '';
+
+  state.cards.forEach(c => {
+    const el = buildCardEl(c, false);
+    grid.appendChild(el);
+  });
+
+  if (state.cards.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML = '<div class="big">✦</div>Add your first habit to get started!';
+    grid.appendChild(empty);
+  }
+
+  // Add card button
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-card-btn';
+  addBtn.onclick = () => openCreateModal(null);
+  addBtn.innerHTML = '<span class="plus">+</span>add a habit';
+  grid.appendChild(addBtn);
+}
+
+// ─────────────────────────────────────────────
+// RENDER ARCHIVE
+// ─────────────────────────────────────────────
+function renderArchive() {
+  const grid = document.getElementById('archive-grid');
+  grid.innerHTML = '';
+
+  if (!state.archive || state.archive.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div class="big">✦</div>Complete a card to see it here!</div>';
+    return;
+  }
+
+  [...state.archive].reverse().forEach(item => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'archive-card';
+    const cardEl = buildCardEl(item.card, true);
+    wrapper.appendChild(cardEl);
+
+    // Stamp
+    const stamp = document.createElement('div');
+    stamp.className = 'completed-stamp';
+    stamp.style.color = isDark(item.card.bgColor) ? 'white' : '#2d2d2d';
+    stamp.textContent = '✦ COMPLETE ✦';
+    cardEl.querySelector('.punch-card').appendChild(stamp);
+
+    // Date
+    const dateEl = document.createElement('div');
+    dateEl.className = 'archive-date';
+    dateEl.textContent = new Date(item.completedAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+    wrapper.appendChild(dateEl);
+
+    grid.appendChild(wrapper);
+  });
+}
+
+// ─────────────────────────────────────────────
+// BUILD CARD ELEMENT
+// ─────────────────────────────────────────────
+function buildCardEl(card, archived) {
+  const dark  = isDark(card.bgColor);
+  const txt   = dark ? '#ffffff' : '#2d2d2d';
+  const shape = getShape(card.shape);
+  const pct   = Math.min((card.punches.length / card.totalPunches) * 100, 100);
+
+  const wrapper = document.createElement('div');
+
+  // Punch spots HTML
+  let spotsHtml = '';
+  for (let i = 0; i < card.totalPunches; i++) {
+    const punched   = i < card.punches.length;
+    const punchable = !archived && i === card.punches.length;
+    const col       = punched
+      ? card.punchColor
+      : (dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.18)');
+    spotsHtml += `<div
+      class="punch-spot${punched?' punched':''}${punchable?' punchable':''}"
+      style="color:${col}"
+      ${punchable ? `onclick="punch('${card.id}')"` : ''}
+      title="${punched?'done!':punchable?'click to punch!':''}"
+    >${shape.em}</div>`;
+  }
+
+  const rewardHtml = card.reward
+    ? `<div class="reward-text">prize: ${card.reward}</div>`
+    : `<div class="reward-text" style="opacity:0.35">prize: ____</div>`;
+
+  const completionsHtml = card.completions
+    ? `<div class="completions-ct">✦ completed ${card.completions}x</div>`
+    : '';
+
+  const actionsHtml = !archived ? `
+    <div class="card-actions">
+      <button class="card-btn" style="color:${txt}" onclick="openCreateModal('${card.id}')" title="edit">✎</button>
+      <button class="card-btn" style="color:${txt}" onclick="shareCard('${card.id}')" title="save as image">↑</button>
+      <button class="card-btn" style="color:${txt}" onclick="openDelete('${card.id}')" title="delete">✕</button>
+    </div>` : '';
+
+  const schedBadge = card.schedType !== 'total'
+    ? `<div class="schedule-badge" style="background:${dark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.09)'}">
+        ${card.schedTarget}× ${card.schedType}
+       </div>`
+    : '';
+
+  const progressBarColor = card.punchColor === '#ffffff'
+    ? 'rgba(255,255,255,0.55)'
+    : card.punchColor;
+
+  wrapper.innerHTML = `
+    <div class="punch-card" id="card-${card.id}"
+      style="background:${card.bgColor}; color:${txt}; font-family:'${card.font}',cursive">
+      <div class="card-inner" style="border-color:${dark?'rgba(255,255,255,0.25)':'rgba(0,0,0,0.12)'}">
+        ${schedBadge}
+        <div class="card-title">${card.name}</div>
+        <div class="punch-grid" id="grid-${card.id}">${spotsHtml}</div>
+        <div class="progress-wrap">
+          <div class="progress-bar" style="width:${pct}%; background:${progressBarColor}"></div>
+        </div>
+        <div class="card-footer" style="border-color:${dark?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.09)'}">
+          <div>${rewardHtml}${completionsHtml}</div>
+          ${actionsHtml}
+        </div>
+      </div>
+    </div>`;
+
+  return wrapper;
+}
+
+// ─────────────────────────────────────────────
+// PUNCH
+// ─────────────────────────────────────────────
+function punch(cardId) {
+  const card = state.cards.find(c=>c.id===cardId);
+  if (!card) return;
+
+  const idx = card.punches.length;
+  if (idx >= card.totalPunches) return;
+
+  card.punches.push(new Date().toISOString());
+  save();
+
+  // Animate the spot
+  const spot = document.querySelector(`#grid-${cardId} .punch-spot:nth-child(${idx+1})`);
+  if (spot) {
+    spot.classList.remove('punchable');
+    spot.classList.add('punched', 'just-punched');
+    spot.style.color = card.punchColor;
+    spot.onclick = null;
+    setTimeout(()=>spot.classList.remove('just-punched'), 450);
+
+    // Make next spot punchable
+    const next = document.querySelector(`#grid-${cardId} .punch-spot:nth-child(${idx+2})`);
+    if (next) {
+      next.classList.add('punchable');
+      next.onclick = () => punch(cardId);
+    }
+  }
+
+  // Update progress bar
+  const pct = Math.min(card.punches.length / card.totalPunches * 100, 100);
+  const pb  = document.querySelector(`#card-${cardId} .progress-bar`);
+  if (pb) pb.style.width = pct + '%';
+
+  if (card.punches.length >= card.totalPunches) {
+    setTimeout(() => completeCard(cardId), 600);
+  }
+}
+
+// ─────────────────────────────────────────────
+// COMPLETE CARD
+// ─────────────────────────────────────────────
+function completeCard(cardId) {
+  const card = state.cards.find(c=>c.id===cardId);
+  if (!card) return;
+
+  if (!state.archive) state.archive = [];
+  state.archive.push({
+    card: JSON.parse(JSON.stringify(card)),
+    completedAt: new Date().toISOString(),
+  });
+
+  card.completions = (card.completions||0) + 1;
+  card.punches = [];
+  save();
+
+  // Show celebration
+  document.getElementById('cel-name').textContent   = card.name;
+  document.getElementById('cel-reward').textContent = card.reward ? '🎁 reward: ' + card.reward : '';
+  document.getElementById('celebrate-modal').classList.remove('hidden');
+
+  if (typeof confetti !== 'undefined') {
+    confetti({ particleCount: 140, spread: 90, origin: { y: 0.55 } });
+    setTimeout(()=>confetti({ particleCount: 60, spread: 60, origin: { y: 0.4 } }), 600);
+  }
+
+  renderDashboard();
+}
+
+// ─────────────────────────────────────────────
+// DELETE
+// ─────────────────────────────────────────────
+function openDelete(cardId) {
+  deletingId = cardId;
+  document.getElementById('delete-modal').classList.remove('hidden');
+}
+function confirmDelete() {
+  state.cards = state.cards.filter(c=>c.id!==deletingId);
+  deletingId = null;
+  save();
+  closeModal('delete-modal');
+  renderDashboard();
+}
+
+// ─────────────────────────────────────────────
+// SHARE / SAVE AS IMAGE
+// ─────────────────────────────────────────────
+function shareCard(cardId) {
+  const el = document.getElementById('card-'+cardId);
+  if (!el) return;
+  if (typeof html2canvas === 'undefined') { alert('Share feature loading, try again in a moment.'); return; }
+
+  html2canvas(el, { scale: 2.5, useCORS: true, backgroundColor: null }).then(canvas => {
+    const link = document.createElement('a');
+    const card = state.cards.find(c=>c.id===cardId);
+    link.download = (card ? card.name.replace(/\s+/g,'-').toLowerCase() : 'habit-card') + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+load();
+if (state.onboarded) document.getElementById('onboarding').classList.add('hidden');
+renderDashboard();
+</script>
+</body>
+</html>
