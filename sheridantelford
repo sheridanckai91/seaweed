@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ST</title>
+  <!-- Replace XXXXXXX with your Adobe Fonts kit ID from fonts.adobe.com -->
+  <link rel="stylesheet" href="https://use.typekit.net/lpl5yez.css">
+  <style>
+    body.dark { background: #000; color: #fff; }
+    body.dark .logo,
+    body.dark nav a,
+    body.dark .cascade a { color: #fff; }
+
+    @media (prefers-color-scheme: dark) {
+      body:not(.light) { background: #000; color: #fff; }
+      body:not(.light) .logo,
+      body:not(.light) nav a,
+      body:not(.light) .cascade a { color: #fff; }
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    body {
+      background: #fff;
+      color: #000;
+      font-family: 'adobe-caslon-pro', 'Times New Roman', Times, serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 36px;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      color: #000;
+    }
+
+    nav {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+
+    nav a {
+      color: #000;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    #theme-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: inherit;
+      padding: 0;
+      line-height: 1;
+    }
+
+    #theme-toggle:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Main cascade ── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .cascade {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.0;
+      width: 100%;
+    }
+
+    .cascade a {
+      display: block;
+      font-size: min(4.95vw, 7.65vh);
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #000;
+    }
+
+    .cascade a:hover,
+    .cascade .pair:hover a {
+      font-style: italic;
+      text-transform: none;
+    }
+
+    /* Upper group */
+    .cascade .upper {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.0;
+      padding-right: 90px;
+    }
+
+    .upper a {
+      margin-left: auto;
+      width: fit-content;
+    }
+
+    .upper a:nth-child(1) { margin-right: calc(90px + 9%); }
+    .upper a:nth-child(2) { margin-right: calc(90px + 6%); }
+    .upper a:nth-child(3) { margin-right: calc(90px + 3%); }
+    .upper a:nth-child(4) { margin-right: 90px; }
+
+    /* Lower section */
+    .cascade > *:nth-child(2) { margin-left: 0%; margin-top: -1.2em; }
+    .cascade > *:nth-child(3) { margin-left: 8%; }
+    .cascade > *:nth-child(4) { margin-left: 30%; }
+
+    /* ── Hover image ── */
+    #hover-img {
+      position: fixed;
+      pointer-events: none;
+      width: 220px;
+      height: auto;
+      max-height: 60vh;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      z-index: 100;
+      transform: translate(20px, -50%);
+    }
+
+    #hover-img.visible {
+      opacity: 1;
+    }
+
+    /* Live + Performance pair */
+    .cascade .pair {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.05;
+      margin-left: 38%;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="#">ST</a>
+    <nav>
+      <a href="mailto:sheridan.telford@gmail.com">email</a>
+      <a href="https://www.linkedin.com/in/sheridan-telford" target="_blank" rel="noopener">linkedin</a>
+      <button id="theme-toggle" aria-label="Toggle dark mode">☀︎</button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="cascade">
+      <div class="upper">
+        <a href="#" data-img="campaign.png" data-img-width="320">Campaign</a>
+        <a href="#" data-img="editorial.jpg" data-img-width="220">Editorial</a>
+        <a href="#">Still Life</a>
+        <a href="#" data-img="beauty.png" data-img-width="320">Beauty</a>
+      </div>
+      <a href="#">Films</a>
+      <a href="#">Experiential</a>
+      <div class="pair">
+        <a href="#">Live</a>
+        <a href="#">Performance</a>
+      </div>
+    </div>
+  </main>
+
+  <img id="hover-img" src="" alt="">
+
+  <script>
+    // ── Hover images ──
+    const hoverImg = document.getElementById('hover-img');
+
+    document.querySelectorAll('[data-img]').forEach(link => {
+      link.addEventListener('mouseenter', () => {
+        hoverImg.src = link.dataset.img;
+        hoverImg.style.width = (link.dataset.imgWidth || '320') + 'px';
+        hoverImg.classList.add('visible');
+      });
+      link.addEventListener('mouseleave', () => {
+        hoverImg.classList.remove('visible');
+      });
+      link.addEventListener('mousemove', e => {
+        hoverImg.style.left = e.clientX + 'px';
+        hoverImg.style.top  = e.clientY + 'px';
+      });
+    });
+
+    // ── Theme toggle ──
+    const toggle = document.getElementById('theme-toggle');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Initialise from system preference
+    if (prefersDark) {
+      document.body.classList.add('dark');
+      toggle.textContent = '☽';
+    }
+
+    toggle.addEventListener('click', () => {
+      const isDark = document.body.classList.toggle('dark');
+      document.body.classList.toggle('light', !isDark);
+      toggle.textContent = isDark ? '☽' : '☀︎';
+    });
+  </script>
+</body>
+</html>
